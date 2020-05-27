@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using DBreeze;
 using Fluxor.Blazor.Web.PersistStore.Abstractions;
@@ -75,13 +76,32 @@ namespace Fluxor.Blazor.Web.DBreezePersistStore
         {
             using (var tran = this.engine.GetTransaction())
             {
+                tran.SynchronizeTables(KEEPALIVETABLE);
+                tran.Insert<string, DateTime>(KEEPALIVETABLE, key, DateTime.UtcNow);
+                tran.Commit();
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public Task PurgeOrphanedStates(int timeFrameSeconds)
+        {
+            DateTime borderDate = DateTime.UtcNow.AddSeconds(timeFrameSeconds * -1);
+            using (var tran = this.engine.GetTransaction())
+            {
                 tran.SynchronizeTables(KEEPALIVETABLE, STATESTABLE);
-                var row = tran.Select<string, string>(STATESTABLE, key);
-                if (row.Exists)
+                foreach (var rowSession in tran.SelectForward<string, DateTime>(KEEPALIVETABLE).Where(r => r.Value < borderDate).ToList())
                 {
-                    tran.Insert<string, DateTime>(KEEPALIVETABLE, key, DateTime.UtcNow);
-                    tran.Commit();
+                    var rowState = tran.Select<string, string>(STATESTABLE, rowSession.Key);
+                    if (rowState.Exists)
+                    {
+                        tran.RemoveKey(STATESTABLE, rowSession.Key);
+                    }
+
+                    tran.RemoveKey(KEEPALIVETABLE, rowSession.Key);
                 }
+
+                tran.Commit();
             }
 
             return Task.CompletedTask;

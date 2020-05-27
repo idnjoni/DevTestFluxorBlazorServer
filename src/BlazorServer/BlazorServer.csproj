@@ -6,8 +6,8 @@
 
 <ItemGroup>
     <PackageReference Include="DevExpress.Blazor" Version="19.2.4" />
-    <PackageReference Include="Fluxor.Blazor.Web" Version="3.0.2" />
-    <PackageReference Include="Fluxor.Blazor.Web.ReduxDevTools" Version="3.0.2" />
+    <PackageReference Include="Fluxor.Blazor.Web" Version="3.1.1" />
+    <PackageReference Include="Fluxor.Blazor.Web.ReduxDevTools" Version="3.1.1" />
     <PackageReference Include="Cloudcrate.AspNetCore.Blazor.Browser.Storage" Version="3.0.0" />
 </ItemGroup>
 

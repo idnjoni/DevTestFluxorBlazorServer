@@ -17,6 +17,7 @@ namespace Fluxor.Blazor.Web.PersistStore
 
 			options.Services.AddScoped<FluxorPersistStoreInterop>();
             options.Services.Configure<PersistStoreMiddlewareOptions>(configAction);
+            options.Services.AddHostedService<PersistStoreSessionCleanupService>();
             options.AddMiddleware<PersistStoreMiddleware>();
 			return options;
 		}

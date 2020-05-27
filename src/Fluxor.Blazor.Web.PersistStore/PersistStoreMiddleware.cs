@@ -41,7 +41,7 @@ namespace Fluxor.Blazor.Web.PersistStore {
         }
 
 		/// <see cref="IMiddleware.GetClientScripts"/>
-		public override string GetClientScripts() => FluxorPersistStoreInterop.GetClientScripts();
+		public override string GetClientScripts() => FluxorPersistStoreInterop.GetClientScripts(this.options);
 
         /// <see cref="IMiddleware.InitializeAsync(IStore)"/>
         public async override Task InitializeAsync (IStore store) {
@@ -69,6 +69,7 @@ namespace Fluxor.Blazor.Web.PersistStore {
             if (action is PersistStoreSetKeyAction setKeyAction)
             {
                 this.storeKey = setKeyAction.StoreKey;
+                this.storage.KeepAliveState(this.storeKey);
 
                 Dictionary<string, string> savedState = this.storage.LoadStateAsync(this.storeKey).Result;
                 if (savedState != null)
@@ -80,12 +81,16 @@ namespace Fluxor.Blazor.Web.PersistStore {
             {
                 this.dispatchLocked = lockAction.Locked;
             }
+            else if (action is PersistStoreResetStateAction)
+            {
+                this.ResetState();
+            }
         }
 
         /// <see cref="IMiddleware.AfterDispatch(object)"/>
         public override void AfterDispatch (object action)
         {
-            if (!(action is PersistStoreSetKeyAction))
+            if ((action is PersistStoreResetStateAction) || !(action is PersistStoreActionBase))
             {
                 if (this.storeKey != null)
                 {
@@ -146,5 +151,24 @@ namespace Fluxor.Blazor.Web.PersistStore {
 		{
             return this.storage.KeepAliveState(callbackInfo.payload.sessionKey);
 		}
+
+        // ToDo: Uncomment, after IFeature<TState>.GetInitialState() was available
+        private void ResetState()
+        {
+            using (this.store.BeginInternalMiddlewareChange ())
+            {
+                foreach (KeyValuePair<string, IFeature> feature in this.store.Features)
+                {
+                    // Testdummy
+                    if (feature.Key.Equals("Counter"))
+                    {
+                        feature.Value.RestoreState(new DevFluxor.DevFluxorCounterState(100));
+                    }
+
+                    // Now set the feature's state to the intial value
+                    //feature.Value.RestoreState(feature.Value.GetInitialState());
+                }
+            }
+        }
     }
 }

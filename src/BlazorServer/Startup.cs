@@ -6,9 +6,9 @@ using Microsoft.Extensions.Hosting;
 using BlazorServer.Data;
 using Fluxor;
 using Cloudcrate.AspNetCore.Blazor.Browser.Storage;
-using Fluxor.Blazor.Web.MemoryPersistStore;
 using Fluxor.Blazor.Web.PersistStore;
-using Fluxor.Blazor.Web.DBreezePersistStore;
+//using Fluxor.Blazor.Web.DBreezePersistStore;
+using Fluxor.Blazor.Web.MemoryPersistStore;
 
 namespace BlazorServer
 {
@@ -31,15 +31,18 @@ namespace BlazorServer
 
             services.AddSingleton<WeatherForecastService>();
 
-            // services.AddSingleton<IStorage, MemoryStorage>();
-            // services.AddSingleton<IFluxorStorage, DBreezeStorage>();
-            services.AddFluxorPersistStorage(this.Configuration);
+            // using Fluxor.Blazor.Web.DBreezePersistStore;
+            //services.AddFluxorPersistStorage(this.Configuration);
+
+            // using Fluxor.Blazor.Web.MemoryPersistStore;
+            services.AddFluxorPersistStorage();
 
 	        var currentAssembly = typeof(Startup).Assembly;
 	        services.AddFluxor(options => options
                 .ScanAssemblies(currentAssembly)
                 .UseReduxDevTools()
-                .UsePersistStore());
+                .UsePersistStore(options => { })
+            );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

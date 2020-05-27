@@ -16,5 +16,7 @@ namespace Fluxor.Blazor.Web.PersistStore
         public HashSet<string> IgnoredFeatures { get; }
 
         public bool IgnoreInitialDispatchesOnRestore { get; set; } = true;
+
+        public int SessionKeepAliveIntervalSeconds { get; set; } = 5 * 60;
     }
 }

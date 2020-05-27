@@ -10,5 +10,7 @@ namespace Fluxor.Blazor.Web.PersistStore.Abstractions
         Task<Dictionary<string, string>> LoadStateAsync(string key);
 
         Task KeepAliveState(string key);
+
+        Task PurgeOrphanedStates(int timeFrameSeconds);
     }
 }

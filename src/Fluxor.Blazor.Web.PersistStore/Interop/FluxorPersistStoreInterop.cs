@@ -1,4 +1,5 @@
 ﻿using Fluxor.Blazor.Web.PersistStore.Interop.CallbackObjects;
+using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 using Newtonsoft.Json;
 using System;
@@ -110,7 +111,7 @@ namespace Fluxor.Blazor.Web.PersistStore.Interop
 			return JSRuntime.InvokeAsync<TResult>(fullIdentifier, args);
 		}
 
-		internal static string GetClientScripts()
+		internal static string GetClientScripts(IOptions<PersistStoreMiddlewareOptions> options)
 		{
 			return $@"
 window.{FluxorPersistStoreId} = new (function() {{
@@ -132,7 +133,7 @@ window.{FluxorPersistStoreId} = new (function() {{
     this.{ToJsInitMethodName} = function(dotNetCallbacks, state) {{
         window.fluxorDevToolsDotNetInterop = dotNetCallbacks;
         if (window.fluxorDevToolsDotNetInterop) {{
-            window.setInterval(this.SendKeepAlive, 5 * 1000 * 60);
+            window.setInterval(this.SendKeepAlive, {options.Value.SessionKeepAliveIntervalSeconds * 1000});
         }}
     }};
 
