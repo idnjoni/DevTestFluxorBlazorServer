@@ -152,7 +152,7 @@ namespace Fluxor.Blazor.Web.PersistStore {
             return this.storage.KeepAliveState(callbackInfo.payload.sessionKey);
 		}
 
-        // ToDo: Uncomment, after IFeature<TState>.GetInitialState() was available
+        // ToDo: Uncomment, after IFeature<TState>.ResetToInitialState()() was available
         private void ResetState()
         {
             using (this.store.BeginInternalMiddlewareChange ())
@@ -166,7 +166,7 @@ namespace Fluxor.Blazor.Web.PersistStore {
                     }
 
                     // Now set the feature's state to the intial value
-                    //feature.Value.RestoreState(feature.Value.GetInitialState());
+                    //feature.Value.ResetToInitialState();
                 }
             }
         }
