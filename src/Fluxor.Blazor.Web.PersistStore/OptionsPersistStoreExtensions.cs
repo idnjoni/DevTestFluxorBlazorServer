@@ -7,7 +7,7 @@ namespace Fluxor.Blazor.Web.PersistStore
 {
 	public static class OptionsPersistStoreExtensions
 	{
-		public static Options UsePersistStore(this Options options, Action<PersistStoreMiddlewareOptions> configure = null)
+		public static FluxorOptions UsePersistStore(this FluxorOptions options, Action<PersistStoreMiddlewareOptions> configure = null)
 		{
 			Action<PersistStoreMiddlewareOptions> configAction = configure;
             if (configure == null)
@@ -16,7 +16,7 @@ namespace Fluxor.Blazor.Web.PersistStore
             }
 
 			options.Services.AddScoped<FluxorPersistStoreInterop>();
-            options.Services.Configure<PersistStoreMiddlewareOptions>(configAction);
+            options.Services.Configure(configAction);
             options.Services.AddHostedService<PersistStoreSessionCleanupService>();
             options.AddMiddleware<PersistStoreMiddleware>();
 			return options;

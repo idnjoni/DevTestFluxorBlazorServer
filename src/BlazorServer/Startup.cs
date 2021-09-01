@@ -38,7 +38,7 @@ namespace BlazorServer
             services.AddFluxorPersistStorage();
 
 	        var currentAssembly = typeof(Startup).Assembly;
-	        services.AddFluxor(options => options
+	        services.AddFluxor(fluxorOptions => fluxorOptions
                 .ScanAssemblies(currentAssembly)
                 .UseReduxDevTools()
                 .UsePersistStore(options => { })
