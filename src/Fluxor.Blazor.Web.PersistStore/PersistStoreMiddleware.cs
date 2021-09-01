@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Fluxor.Blazor.Web.PersistStore.Abstractions;
 using Fluxor.Blazor.Web.PersistStore.Actions;
@@ -49,7 +50,7 @@ namespace Fluxor.Blazor.Web.PersistStore {
             this.storeKey = null;
             this.ScanIgnoredFeatures();
 
-			await this.persistStoreInterop.InitializeAsync();
+          await this.persistStoreInterop.InitializeAsync();
         }
 
         /// <see cref="IMiddleware.MayDispatchAction(object)"/>
@@ -152,21 +153,28 @@ namespace Fluxor.Blazor.Web.PersistStore {
             return this.storage.KeepAliveState(callbackInfo.payload.sessionKey);
 		}
 
-        // ToDo: Uncomment, after IFeature<TState>.ResetToInitialState()() was available
         private void ResetState()
         {
             using (this.store.BeginInternalMiddlewareChange ())
             {
                 foreach (KeyValuePair<string, IFeature> feature in this.store.Features)
                 {
-                    // Testdummy
-                    if (feature.Key.Equals("Counter"))
-                    {
-                        feature.Value.RestoreState(new DevFluxor.DevFluxorCounterState(100));
-                    }
+                  if (this.options.Value.IgnoredFeatures.Contains(feature.Key))
+                  {
+                      continue;
+                  }
 
-                    // Now set the feature's state to the intial value
-                    //feature.Value.ResetToInitialState();
+                  var GetInitialState = feature.Value.GetType().GetMethod(
+                    "GetInitialState",
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
+                    null,
+                    CallingConventions.Any,
+                    Type.EmptyTypes,
+                    null);
+                  if (GetInitialState != null) {
+                    var obj = GetInitialState.Invoke(feature.Value, null);
+                    feature.Value.RestoreState(obj);
+                  }
                 }
             }
         }
